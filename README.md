@@ -63,7 +63,7 @@ However, we observe a counterintuitive phenomenon: **GCL can still achieve compe
 - What prevents GCL from effectively learning from positive samples?
 - How can we restore the learning efficacy of positive samples?
 
-Our key finding is that **GNN message passing itself can increase the similarity between positive samples before contrastive optimization**. We call this phenomenon the **pre-alignment effect**. It makes positive samples appear close even before being optimized by the contrastive objective, thereby weakening the useful learning signal carried by positive alignment.
+We find that **GNN message passing itself can increase the similarity between positive samples before contrastive optimization**. We define this phenomenon the **pre-alignment effect**. It makes positive samples appear close even before being optimized by the contrastive objective, thereby weakening the useful learning signal carried by positive alignment.
 
 To address this issue, we propose **Separate Propagation Graph Contrastive Learning (SPGCL)**, which separates feature propagation according to feature-wise Dirichlet energy and constructs reliable positive samples with energy-guided sampling.
 
@@ -94,27 +94,9 @@ We estimate the **Dirichlet energy** of each feature dimension and divide node f
 - **High-energy features** preserve informative local variations and are propagated through a GCN encoder.
 - **Low-energy features** are smooth over the graph and tend to amplify redundant similarity. They are therefore transformed by an MLP without graph propagation.
 
-Formally,
-
-```text
-X = [X_H, X_L]
-Z_H = GCN(A, X_H)
-Z_L = MLP(X_L)
-Z   = Z_H + Z_L
-```
-
-This design mitigates the pre-alignment effect caused by message passing while preserving informative signals for positive learning.
-
 ### 2. Energy-Guided Positive Sampling, EPS
 
-Although low-energy features contribute little to effective positive alignment, they encode stable and smooth graph signals. SPGCL uses them to construct a probabilistic positive sampling matrix.
-
-```text
-S_ij = cosine(x_i,L, x_j,L)
-M_ij ~ Bernoulli(min(alpha * S_ij, 1))
-```
-
-This strategy helps filter unreliable positive pairs and is especially useful on heterophilic graphs, where neighboring nodes may belong to different classes.
+Although low-energy features contribute little to effective positive alignment, they encode stable and smooth graph signals. SPGCL uses them to construct a probabilistic positive sampling matrix. This helps filter unreliable positive pairs and is especially useful on heterophilic graphs, where neighboring nodes may belong to different classes.
 
 ---
 
@@ -177,13 +159,13 @@ SPGCL/
 ### Train SPGCL on homophilic graphs
 
 ```bash
-python python model_homo/node_classification_homo.py
+python model_homo/node_classification_homo.py
 ```
 
 ### Train SPGCL on heterophilic graphs
 
 ```bash
-python python model_heter/node_classification_heter.py
+python model_heter/node_classification_heter.py
 ```
 
 ### Node clustering evaluation
@@ -227,7 +209,6 @@ We evaluate the contribution of Energy-Aware Propagation (EAP) and Energy-Guided
 | w/o EPS | 84.91 | 93.99 | 94.67 | 66.76 | 78.65 | 35.00 |
 | w/o EAP & EPS | 83.70 | 93.73 | 93.67 | 50.08 | 66.76 | 23.33 |
 
-The performance drop after removing EAP indicates that separating feature propagation according to Dirichlet energy is crucial for restoring effective positive learning.
 
 ---
 
@@ -275,7 +256,7 @@ If you find this repository useful, please consider citing our paper:
 
 ## Acknowledgement
 
-This work was supported by the National Natural Science Foundation of China. We also thank the open-source graph learning community for providing high-quality implementations and benchmark datasets.
+We thank the open-source graph learning community for providing high-quality implementations and benchmark datasets.
 
 We sincerely thank the authors of **GraphACL** for their excellent work and open-source implementation. The code for our heterophilic graph experiments is built upon their implementation, and we greatly appreciate their contribution to the graph learning community.
 
@@ -284,6 +265,8 @@ We sincerely thank the authors of **GraphACL** for their excellent work and open
 ## Contact
 
 For questions or discussions, please feel free to open an issue or contact:
+
+- **Lianze Shan**: shanlz2119@tju.edu.cn
 
 - **Dongxiao He**: hedongxiao@tju.edu.cn
 
